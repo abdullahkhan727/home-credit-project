@@ -1,0 +1,93 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Virtual environments
+venv/
+ENV/
+env/
+
+# Data files (too large for Git)
+*.csv
+*.parquet
+*.pkl
+*.pickle
+*.joblib
+
+# Model artifacts (generated, not source code)
+*.h5
+*.hdf5
+*.model
+*.sav
+models/
+checkpoints/
+
+# Processed data (generated from scripts)
+processed_data/
+data/application_train.csv
+data/application_test.csv
+data/bureau.csv
+data/previous_application.csv
+data/installments_payments.csv
+data/POS_CASH_balance.csv
+data/credit_card_balance.csv
+
+# Kaggle submission files (generated)
+submission*.csv
+*_submission.csv
+
+# HTML reports (generated from notebooks/Quarto)
+*.html
+!README.html
+
+# Quarto
+.quarto/
+*_files/
+*_cache/
+
+# R
+.Rhistory
+.RData
+.Rproj.user
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.bak
+*.log
+
+# Keep important documentation
+!README.md
+!DATABOT.md

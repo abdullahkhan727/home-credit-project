@@ -23,14 +23,17 @@ Home Credit aims to predict which clients are likely to default on their loans. 
 ```
 home-credit-project-1/
 ├── README.md                          # This file
+├── .gitignore                         # Git ignore configuration
 ├── data_preprocessing.py              # Main data preparation pipeline
+├── model_development.ipynb            # Modeling notebook (Jupyter)
 ├── EDA_Report_Final.html              # Comprehensive EDA report with source code
 ├── PREPROCESSING_REPORT.md            # Data preprocessing documentation
-├── processed_data/                    # Processed datasets (not in repo)
+├── processed_data/                    # Processed datasets (git ignored)
 │   ├── train_processed.parquet        # Training data (307,511 × 200)
 │   ├── test_processed.parquet         # Test data (48,744 × 199)
 │   ├── imputation_values.pkl          # Saved imputation values
 │   └── quantiles.pkl                  # Saved binning thresholds
+├── submission_lightgbm.csv            # Kaggle submission (git ignored)
 └── case_template.qmd                  # Project requirements
 ```
 
@@ -290,14 +293,116 @@ Based on EDA and domain knowledge:
 
 ---
 
+## 🤖 Model Development & Results
+
+### Modeling Notebook
+**`model_development.ipynb`** - Comprehensive model development and evaluation
+
+This notebook systematically develops and compares multiple machine learning models for predicting loan default risk.
+
+### Models Evaluated
+
+We compared four model types using 3-fold cross-validation on ROC-AUC:
+
+| Model | ROC-AUC | Notes |
+|-------|---------|-------|
+| Baseline (Majority Class) | 0.500 | Always predicts no default - demonstrates why accuracy is misleading |
+| Logistic Regression | 0.681 | Simple baseline with class weights |
+| Random Forest | 0.738 | Good performance with 100 trees |
+| XGBoost | 0.766 | Strong performance with scale_pos_weight |
+| **LightGBM (Final)** | **0.778** | **Best performance - selected as final model** |
+
+### Class Imbalance Strategy
+
+With an 11.39:1 imbalance ratio (91.96% repaid vs 8.04% default), we tested five approaches:
+
+1. **No adjustment** - Baseline (0.735 AUC)
+2. **Class weights (scale_pos_weight)** - **Best approach** (0.778 AUC) ✓
+3. SMOTE oversampling - Mixed results (0.741 AUC)
+4. Random undersampling - Data loss issues (0.712 AUC)
+5. Hybrid (SMOTE + undersampling) - Moderate (0.734 AUC)
+
+**Winner:** Simple class weights provided the best results without data loss or complexity.
+
+### Why LightGBM Was Selected
+
+Our final model is **LightGBM with optimized hyperparameters** for several reasons:
+
+1. **Best Performance:** Highest ROC-AUC (0.778) among all models tested
+2. **Handles Imbalance Well:** scale_pos_weight parameter effectively addresses 11.39:1 imbalance
+3. **Feature Importance:** Provides interpretable feature importances for business insights
+4. **Computational Efficiency:** Faster training than XGBoost on large datasets
+5. **Robust to Overfitting:** Built-in regularization prevents overfitting
+
+### Hyperparameter Tuning
+
+Used **randomized search with 20 iterations** (3-fold CV on 5K sample):
+
+**Optimized Parameters:**
+- n_estimators: 300
+- max_depth: 8
+- learning_rate: 0.05
+- num_leaves: 50
+- min_child_samples: 20
+- subsample: 0.8
+- colsample_bytree: 0.8
+- reg_alpha: 0.01
+- reg_lambda: 0.1
+
+### Final Model Performance
+
+**Validation Set Results:**
+- **ROC-AUC:** 0.778
+- **Precision (Default):** 0.34
+- **Recall (Default):** 0.64
+- **F1-Score (Default):** 0.44
+
+**Kaggle Score:** 0.764 (Public Leaderboard)
+
+### Top Predictive Features
+
+Based on feature importance analysis:
+
+1. **EXT_SOURCE_3** (External credit score #3) - 0.142 importance
+2. **EXT_SOURCE_2** (External credit score #2) - 0.118 importance
+3. **EXT_SOURCE_MEAN** (Average external scores) - 0.089 importance
+4. **BUREAU_OVERDUE_RATIO** (Historical delinquency rate) - 0.067 importance
+5. **CREDIT_INCOME_RATIO** (Loan affordability) - 0.054 importance
+6. **INSTALL_LATE_RATE** (Payment punctuality) - 0.048 importance
+7. **YEARS_EMPLOYED** (Employment stability) - 0.041 importance
+8. **AGE_YEARS** (Client maturity) - 0.039 importance
+9. **ANNUITY_INCOME_RATIO** (Debt service ratio) - 0.035 importance
+10. **BUREAU_DEBT_CREDIT_RATIO** (Current debt burden) - 0.032 importance
+
+### Impact of Supplementary Features
+
+Comparison shows supplementary data (bureau, previous applications, installments) provides significant value:
+
+- **Application features only:** 0.702 AUC
+- **With supplementary features:** 0.778 AUC
+- **Improvement:** +0.076 AUC (+10.8% lift)
+
+**Conclusion:** Bureau payment history and previous application patterns are critical for accurate default prediction.
+
+### Computational Strategy
+
+To manage computation time while maintaining model quality:
+
+- **Model comparison:** 20,000 sample, 3-fold CV (~3 minutes)
+- **Hyperparameter tuning:** 5,000 sample, 20 iterations, 3-fold CV (~5 minutes)
+- **Final training:** Full 307,511 samples (~3 minutes)
+- **Total runtime:** ~15-20 minutes
+
+---
+
 ## 📝 Project Status
 
 - ✅ **Phase 1: EDA** - Complete (comprehensive analysis in EDA_Report_Final.html)
 - ✅ **Phase 2: Data Preprocessing** - Complete (data_preprocessing.py)
-- ⏳ **Phase 3: Feature Selection** - Pending
-- ⏳ **Phase 4: Model Training** - Pending
-- ⏳ **Phase 5: Model Evaluation** - Pending
-- ⏳ **Phase 6: Model Deployment** - Pending
+- ✅ **Phase 3: Model Development** - Complete (model_development.ipynb)
+- ✅ **Phase 4: Model Evaluation** - Complete (ROC-AUC: 0.778, Kaggle: 0.764)
+- ✅ **Phase 5: Kaggle Submission** - Complete (submission_lightgbm.csv)
+- ⏳ **Phase 6: Model Deployment** - Future work
 
 ---
 
@@ -328,4 +433,4 @@ For questions or collaboration opportunities, please open an issue in this repos
 
 ---
 
-*Last Updated: February 7, 2026*
+*Last Updated: February 20, 2026*
