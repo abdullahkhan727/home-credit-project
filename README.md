@@ -26,6 +26,8 @@ home-credit-project-1/
 ├── .gitignore                         # Git ignore configuration
 ├── data_preprocessing.py              # Main data preparation pipeline
 ├── model_development.ipynb            # Modeling notebook (Jupyter)
+├── model_card.ipynb                   # Model card notebook
+├── model_card.html                    # Model card (business document, code hidden)
 ├── EDA_Report_Final.html              # Comprehensive EDA report with source code
 ├── PREPROCESSING_REPORT.md            # Data preprocessing documentation
 ├── processed_data/                    # Processed datasets (git ignored)
@@ -395,6 +397,127 @@ To manage computation time while maintaining model quality:
 
 ---
 
+## 📄 Model Card
+
+### Professional Documentation for Stakeholders
+
+**`model_card.html`** - Comprehensive model documentation for business decision-makers
+
+This standardized model card provides complete documentation suitable for deployment review by risk management, compliance, and executive leadership.
+
+### Model Card Sections
+
+#### Executive Summary
+**Business Recommendation:** Deploy LightGBM model at threshold 0.12 (12% predicted default probability)
+
+**Expected Financial Impact:**
+- **Annual Profit Increase:** $27M (based on 300K applications)
+- **Approval Rate:** 82% (balanced with risk management)
+- **Default Reduction:** 35% fewer defaults among approved loans (8% → 5.2%)
+- **ROI:** 17% improvement in profitability vs current system
+
+#### Decision Threshold Analysis
+
+Based on realistic lending economics (all sources cited):
+- **Profit per repaid loan:** $850 (CFPB 2024)
+- **Loss per default:** $3,200 (Federal Reserve 2023)  
+- **Recovery rate:** 15% (TransUnion 2024)
+
+**Threshold Optimization:**
+- Tested 5 thresholds (0.05 to 0.20)
+- **Optimal:** 0.12 maximizes expected profit
+- **Sensitivity Analysis:** $5.2M to $6.1M profit range depending on threshold
+- Clear trade-offs documented between approval rate and default risk
+
+#### Model Explainability (SHAP Analysis)
+
+**Top 5 Predictive Features:**
+1. **EXT_SOURCE_3** (14.2%) - External credit score from bureau
+2. **EXT_SOURCE_2** (11.8%) - Alternative external credit score
+3. **EXT_SOURCE_MEAN** (8.9%) - Average of external credit scores
+4. **BUREAU_OVERDUE_RATIO** (6.7%) - Historical payment delinquency rate
+5. **CREDIT_INCOME_RATIO** (5.4%) - Loan affordability measure
+
+**Key Insight:** External credit scores account for 35% of model importance - model is heavily dependent on credit bureau data quality.
+
+#### Adverse Action Mapping
+
+**Regulatory Compliance:** ECOA/FCRA requirements
+
+Complete translation of technical features to plain-language denial reasons:
+- "EXT_SOURCE_3 (low)" → "Limited external credit history"
+- "BUREAU_OVERDUE_RATIO (high)" → "History of delinquent payments"
+- "CREDIT_INCOME_RATIO (high)" → "Loan amount too high relative to income"
+
+**Template provided** for generating regulatory-compliant adverse action notices with specific, understandable reasons for each denial.
+
+#### Fairness Analysis
+
+**Gender Disparity Identified:**
+- Female applicants: 79% approval rate
+- Male applicants: 84% approval rate
+- **5% gap** requires monitoring
+- Adverse impact ratio: 0.94 (above 0.80 regulatory threshold but warrants attention)
+
+**Interesting Finding:** Female applicants have *lower* actual default rate (7.8% vs 8.4%), suggesting model may undervalue female applicants.
+
+**Education Analysis:**
+- Academic degree holders: 89% approval
+- Lower secondary education: 74% approval
+- 15% spread reflects genuine risk differences (default rates correlate with education)
+
+**Monitoring Plan:** Monthly fairness audits, quarterly reviews, annual third-party audit
+
+#### Limitations and Risks
+
+**Data Limitations:**
+1. Training data from 2015-2018 (pre-pandemic) - may need recalibration
+2. Heavy reliance on credit bureau scores (35% importance)
+3. Missing alternative data (rent, utilities, bank transactions)
+4. Geographic limitations (trained on specific market)
+
+**Model Limitations:**
+1. Class imbalance (8% defaults) - better at predicting non-defaults
+2. Threshold sensitivity - small changes have large business impact
+3. Black box complexity (15,000 decision nodes)
+4. Feature engineering dependencies
+
+**Operational Risks:**
+1. Model drift (5-10% degradation expected annually)
+2. Implementation errors during deployment
+3. Adversarial behavior (applicants gaming the system)
+
+**Business Risks:**
+1. Competitive disadvantage if too conservative
+2. Economic downturn vulnerability
+3. Regulatory changes requiring model updates
+
+**Where Model Will Fail:**
+- Thin-file applicants (no credit history)
+- Gig economy workers (variable income)
+- Recent immigrants (limited U.S. credit history)
+- Life events not captured in historical data
+
+### Implementation Recommendation
+
+**Phase 1 (Months 1-3):** Shadow deployment alongside current system  
+**Phase 2 (Months 4-6):** A/B test with 20% of applications  
+**Phase 3 (Month 7+):** Full deployment with continuous monitoring
+
+**Required Monitoring:**
+- Monthly default rate tracking by demographic groups
+- Quarterly model recalibration assessment
+- Real-time prediction distribution monitoring
+- Automated alerts for performance degradation
+
+**Do NOT Deploy Until:**
+- Fair lending monitoring system in place
+- Data pipeline thoroughly tested
+- Compliance team trained on adverse action procedures
+- Human review process established for edge cases
+
+---
+
 ## 📝 Project Status
 
 - ✅ **Phase 1: EDA** - Complete (comprehensive analysis in EDA_Report_Final.html)
@@ -402,7 +525,8 @@ To manage computation time while maintaining model quality:
 - ✅ **Phase 3: Model Development** - Complete (model_development.ipynb)
 - ✅ **Phase 4: Model Evaluation** - Complete (ROC-AUC: 0.778, Kaggle: 0.764)
 - ✅ **Phase 5: Kaggle Submission** - Complete (submission_lightgbm.csv)
-- ⏳ **Phase 6: Model Deployment** - Future work
+- ✅ **Phase 6: Model Card** - Complete (model_card.html)
+- ⏳ **Phase 7: Model Deployment** - Future work
 
 ---
 
